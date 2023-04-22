@@ -14,19 +14,19 @@ class User:
 
 class Account:
     def __init__(self):
-        self.logged_in_user = None
+        self.signed_in_user = None
 
     def is_signed_in(self):
-        if self.logged_in_user:
+        if self.signed_in_user:
             return True
         else:
             return False
 
     def set_account(self, user):
-        self.logged_in_user = user
+        self.signed_in_user = user
 
     def exit_account(self):
-        self.logged_in_user = None
+        self.signed_in_user = None
 
 
 class Menu:
