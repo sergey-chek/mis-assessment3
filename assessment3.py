@@ -209,8 +209,8 @@ class Menu:
         self.action = ''
 
     def execute(self):
-        ''' TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'''
-        ''' TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'''
+        ''' #TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            #TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         print('--------------------------------------TESTING-------------------------------------')
         for user in users:
             print(f'SAVED USER:\n\tname={user.name}, address={user.address}, mobile={user.mobile_number}, '
@@ -223,8 +223,8 @@ class Menu:
                   f'\n\tname={order.name_of_person_picking_up}, distance={order.distance}, mode={order.ordering_mode}, '
                   f'\n\titems={order.items}, total_price={order.get_total_price()}, charges={order.get_service_charges()}')
         print('--------------------------------------TESTING-------------------------------------')
-        ''' TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'''
-        ''' TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'''
+            #TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            #TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'''
         self._show_menu()
         user_choice = self._get_user_choice()
         self._user_choice_processing(user_choice)
@@ -259,9 +259,7 @@ class StartMenu(Menu):
         if user_choice == self.allowed_input[0]:     # 1 Sign Up
             account.sign_up()
         elif user_choice == self.allowed_input[1]:   # 2 Sign In
-            if account.is_signed_in():
-                SignInMenu().execute()
-            elif account.sign_in():
+            if account.sign_in():
                 SignInMenu().execute()
         elif user_choice == self.allowed_input[2]:   # 3 Quit
             print('\nThank you for using the Application!')
@@ -282,6 +280,7 @@ class SignInMenu(Menu):
         user_choice = self._get_user_choice()
         self._user_choice_processing(user_choice)
         if account.get_action() == 'CANCEL_ORDER':
+            account.reset_action()
             self.execute()
 
     def _user_choice_processing(self, user_choice):
@@ -384,8 +383,8 @@ class FoodMenu(Menu):
             DrinksMenu().execute()
         elif user_choice == '7' and not self.show_drinks:
             if not current_order.items:
-                print('The order is empty. Add items to your order first.')
-                FoodMenu(show_drinks=self.show_drinks).execute()
+                print('\nThe order is empty. Start again with the Ordering Menu.')
+                account.set_action('TO_ORDERING_MENU')
             else:
                 self._checkout()
         else:
@@ -404,7 +403,7 @@ class FoodMenu(Menu):
             current_order.reset()
             account.set_action('CANCEL_ORDER')
         elif user_choice == 'Y':
-            if not account.get_signed_in_user().address:
+            if (not account.get_signed_in_user().address) and current_order.ordering_mode == 'HOME_DELIVERY':
                 print('\nYou have not mentioned your address, while signing up.\n'
                       'Please Enter Y if would like to enter your address.\n'
                       'Enter N if you would like to select other mode of order.')
@@ -418,13 +417,13 @@ class FoodMenu(Menu):
                 if current_order.ordering_mode == 'DINE_IN':
                     service_charges = current_order.get_service_charges()
                     total_amount = current_order.get_total_price_with_charges()
-                    print(f'\nYour total payable amount is: AUD {total_amount} including AUD {service_charges} for Service Charges')
+                    print(f'\nYour total payable amount is: AUD {round(total_amount, 2)} including AUD {round(service_charges, 2)} for Service Charges')
                 elif current_order.ordering_mode == 'SELF_PICKUP':
                     total_amount = current_order.get_total_price_with_charges()
-                    print(f'\nYour total payable amount is: AUD {total_amount}')
+                    print(f'\nYour total payable amount is: AUD {round(total_amount, 2)}')
                 elif current_order.ordering_mode == 'HOME_DELIVERY':
                     total_amount = current_order.get_total_price_with_charges()
-                    print(f'\nYour total payable amount is: AUD {total_amount} and there will be  an additional charges for Delivery')
+                    print(f'\nYour total payable amount is: AUD {round(total_amount, 2)} and there will be  an additional charges for Delivery')
                 print('\nDo you want to proceed? [Y, N]: ')
                 user_choice = Utils().get_user_choice(['Y', 'N'])
                 if user_choice == 'N':
@@ -464,7 +463,7 @@ class FoodMenu(Menu):
                                 account.set_action('CANCEL_ORDER')
                         if account.get_action() != 'CANCEL_ORDER':
                             current_order.save()
-                            print('Thank you for your Order, Your Order has been Confirmed.')
+                            print('\nThank you for your Order, Your Order has been Confirmed.')
                     current_order.reset()
 
 class DrinksMenu(FoodMenu):
@@ -475,7 +474,7 @@ class DrinksMenu(FoodMenu):
             MenuItem(2, 'Colddrink', 4),
             MenuItem(3, 'Shake', 6),
         ]
-        self.menu_text = 'Enter 1 for Coffee        Price AUD 2\n' \
+        self.menu_text = '\nEnter 1 for Coffee        Price AUD 2\n' \
                          'Enter 2 for Colddrink     Price AUD 4\n' \
                          'Enter 3 for Shake         Price AUD 6\n' \
                          'Enter 4 for Checkout'
@@ -483,12 +482,16 @@ class DrinksMenu(FoodMenu):
 
     def _user_choice_processing(self, user_choice):
         if user_choice == '4':
-            self._checkout()
+            if not current_order.items:
+                print('The order is empty. Start again with the Ordering Menu.')
+                account.set_action('TO_ORDERING_MENU')
+            else:
+                self._checkout()
         else:
             for item in self.items:
                 if item.id == int(user_choice):
                     current_order.add_item(item)
-                    print(f'\n{item.name} added to your order. Total price = {current_order.get_total_price()} AUD\n')
+                    print(f'\n{item.name} added to your order. Total price = {round(current_order.get_total_price(), 2)} AUD\n')
                     break
             DrinksMenu().execute()
 
@@ -496,12 +499,12 @@ class DrinksMenu(FoodMenu):
 users = []
 orders = []
 
-''' TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'''
+'''#TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 user1 = User('Sergey1', 'Brisbane1', '0987654321', 'S@2', '01/11/1111')
 user2 = User('Sergey2', 'Brisbane2', '0987654322', 'S@2', '02/11/1111')
 users.append(user1)
 users.append(user2)
-''' TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'''
+    #TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'''
 
 account = Account()
 current_order = Order()
