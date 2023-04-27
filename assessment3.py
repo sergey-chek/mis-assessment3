@@ -383,7 +383,11 @@ class FoodMenu(Menu):
         if user_choice == '7' and self.show_drinks:
             DrinksMenu().execute()
         elif user_choice == '7' and not self.show_drinks:
-            self._checkout()
+            if not current_order.items:
+                print('The order is empty. Add items to your order first.')
+                FoodMenu(show_drinks=self.show_drinks).execute()
+            else:
+                self._checkout()
         else:
             for item in self.items:
                 if item.id == int(user_choice):
