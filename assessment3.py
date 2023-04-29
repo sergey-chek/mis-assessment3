@@ -302,7 +302,51 @@ class SignInMenu(Menu):
             self._start_ordering()
 
     def _print_statistics(self):
-        pass  # TODO
+        print_statistics_menu = StatisticsMenu()
+        print_statistics_menu.execute()
+
+
+class StatisticsMenu(Menu):
+    def __init__(self):
+        super().__init__()
+        self.menu_text = '\n\t\tPlease enter the Option to Print the Statistics.\n\t\t' \
+                         '1 - All Dine in Orders.\n\t\t' \
+                         '2 - All Pick up Orders.\n\t\t' \
+                         '3 - All Deliveries.\n\t\t' \
+                         '4 - All Orders (Ascending Order).\n\t\t' \
+                         '5 - Total Amount Spent on All Orders.\n\t\t' \
+                         '6 - To go to Previous Menu.\n\t\t'
+        self.allowed_input = ['1', '2', '3', '4', '5', '6']
+
+    def _user_choice_processing(self, user_choice):
+        if user_choice == self.allowed_input[0]:  # 1 All Dine in Orders
+            self.print_list()
+    '''
+    elif user_choice == self.allowed_input[1]:  # 2 All Pick up Orders
+         self.print_pick_up_orders()
+     elif user_choice == self.allowed_input[2]:  # 3 All Deliveries
+         self.print_deliveries()
+     elif user_choice == self.allowed_input[3]:  # 4 All Orders (Ascending Order
+         self.print_all_orders()
+     elif user_choice == self.allowed_input[4]:  # 5 Total Amount Spent on All Orders
+         self.print_totalAmount_allOrders()
+     elif user_choice == self.allowed_input[5]:  # 6 To go to Previous Menu
+     '''
+
+    def print_list(self):
+        for order in orders:
+            print(  order.id,
+                    order.date,
+                    order.time,
+                    order.number_of_persons,
+                    order.name_of_person_picking_up,
+                    order.distance,
+                    order.ordering_mode,
+                    order.items )
+    '''def _print_pick_up_orders(self):
+     def _print_deliveries(self):
+     def _print_all_orders(self):
+     def _print_totalAmount_allOrders(self): '''
 
 
 class OrderingMenu(Menu):
